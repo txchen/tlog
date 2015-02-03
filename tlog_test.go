@@ -49,4 +49,5 @@ func TestLogfileAndConsole(t *testing.T) {
 	INFO.Println("log line 2")
 	assert.Equal(t, "WARN: log line 1\nINFO: log line 2\n", consoleBuf.String())
 	assert.Equal(t, "WARN: log line 1\n", logfileBuf.String())
+	assert.Fail(t, "fail")
 }
