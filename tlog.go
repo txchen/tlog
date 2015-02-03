@@ -37,9 +37,9 @@ var (
 	ERROR    *log.Logger
 	CRITICAL *log.Logger
 
-	LogFileWriter = ioutil.Discard
-	StdoutWriter  = os.Stdout
-	StderrWriter  = os.Stderr
+	LogFileWriter           = ioutil.Discard
+	StdoutWriter  io.Writer = os.Stdout
+	StderrWriter  io.Writer = os.Stderr
 
 	debug    = &tlogger{Level: LevelDebug, Logger: &DEBUG, Prefix: "DEBUG: "}
 	info     = &tlogger{Level: LevelInfo, Logger: &INFO, Prefix: "INFO: "}
