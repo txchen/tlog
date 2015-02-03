@@ -18,7 +18,7 @@ Log levels:
 
 ### Usage
 
-```golang
+```go
 package main
 
 import (
