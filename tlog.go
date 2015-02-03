@@ -11,6 +11,7 @@ import (
 // LogLevel 1-5, from debug to critical, 6 is off
 type LogLevel int
 
+// These are the log levels defined in tlog.
 const (
 	LevelDebug LogLevel = iota
 	LevelInfo
@@ -28,6 +29,7 @@ type tlogger struct {
 	Logger **log.Logger
 }
 
+// tlog exposes *log.Logger instances which can be used to do actual logging.
 var (
 	DEBUG    *log.Logger
 	INFO     *log.Logger
@@ -35,7 +37,6 @@ var (
 	ERROR    *log.Logger
 	CRITICAL *log.Logger
 
-	// by default, not logging to log file
 	LogFileWriter = ioutil.Discard
 	StdoutWriter  = os.Stdout
 	StderrWriter  = os.Stderr
@@ -57,10 +58,7 @@ func init() {
 	arrangeLoggers()
 }
 
-// initialize will setup the jWalterWeatherman standard approach of providing the user
-// some feedback and logging a potentially different amount based on independent log and output thresholds.
-// By default the output has a lower threshold than logged
-// Don't use if you have manually set the Handles of the different levels as it will overwrite them.
+// arrangeLoggers will use the current settings to create log.logger instances.
 func arrangeLoggers() {
 	for _, tl := range tloggers {
 		var wrtier io.Writer
@@ -84,7 +82,6 @@ func getConsoleWriter(level LogLevel) io.Writer {
 	return StderrWriter
 }
 
-// Ensures that the level provided is within the bounds of available levels
 func levelCheck(level LogLevel) LogLevel {
 	switch {
 	case level <= LevelDebug:
@@ -96,35 +93,37 @@ func levelCheck(level LogLevel) LogLevel {
 	}
 }
 
-// Get the current logfile threashold
+// LogfileLogLevel returns current logfile threashold
 func LogfileLogLevel() LogLevel {
 	return logfileThreshold
 }
 
-// Get the current console threashold
+// ConsoleLogLevel returns current console threashold.
 func ConsoleLogLevel() LogLevel {
 	return consoleThreshold
 }
 
-// Establishes a threshold where anything matching or above will be logged
+// SetLogfileLogLevel sets the logfile loglevel, matching or above will be logged.
+// set to LevelOff to turn off logfile logging.
 func SetLogfileLogLevel(level LogLevel) {
 	logfileThreshold = levelCheck(level)
 	arrangeLoggers()
 }
 
-// Establishes a threshold where anything matching or above will be output
+// SetConsoleLogLevel sets the console loglevel, matching or above will be logged.
+// set to LevelOff to turn off console logging.
 func SetConsoleLogLevel(level LogLevel) {
 	consoleThreshold = levelCheck(level)
 	arrangeLoggers()
 }
 
+// SetLogFlags takes "log" package's log flags, sets output flags for the logger.
 func SetLogFlags(flag int) {
 	logFlag = flag
 	arrangeLoggers()
 }
 
-// Conveniently Sets the Log Handle to a io.writer created for the file behind the given filepath
-// Will only append to this file
+// SetLogFile takes filename as input and enables logfile logging, log will be appended to the file.
 func SetLogFile(path string) error {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
@@ -138,7 +137,7 @@ func SetLogFile(path string) error {
 	return nil
 }
 
-// Conveniently Creates a temporary file and sets the Log Handle to a io.writer created for it
+// UseTempLogFile creates a temporary file and set it as the logfile name.
 func UseTempLogFile(prefix string) error {
 	file, err := ioutil.TempFile(os.TempDir(), prefix)
 	if err != nil {
